@@ -1,2 +1,4 @@
 input/*
 *.xlsx
+.Rhistory
+.Rproj.user/

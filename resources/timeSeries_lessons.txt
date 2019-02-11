@@ -1,0 +1,91 @@
+Pensamientos:
+- No se me ocurre una razon que justifique usar las representaciones 3 en adelante
+(la 2 quizás podría indicar tendencia a dar una respuesta "rapida" en uno de los extremos)
+(aunque... por qué no podria ser que tenga simultaneamente las degeneradas + el bernoulli extremo?)
+
+Pero ya, por simplicidad comencemos solo con SR1
+Primer goal:
+(creo que vale la pena probar la latente y la softmax)
+Modelo para whitefly con brms
+
+- Funciones super utiles para evaluacion posterior que he encontrado:
+> marginal_effects: para entender como impaktan mis variables en modelos complejos
+> hypothesis: para evaluar transformaciones de los parametros
+> splines: si no te consta la relacion lineal
+> randeff: para el clustering p causa
+
+---
+Ok, necesito entender como se aproxima a un analisis longitudinal desde el punto de vista epi. Por que? Porque solo he visto modelos mixtos con interceptos aleatorios, pero eso no toma en cuenta la correlacion entre las medidas sucesivas. Eso esta bien?
+
+Pues... si! Para cosas como presion arterial, tiene sentido asumir que la correlacion entre medida y medida es nula. Pero en periodos mas breves y estados "alterados" como la carga viral o nivel de medicamento, si deberia considerarse creo.
+
+Paso 1: ver el libro de Twisk.
+Cap 1 y 2 solo son introductorios
+Cap 3 muestra analisis uni y bivariado
+Cap 4 recien incorpora covariables y plantea:
+
+... ME RINDO
+
+Este men escribe MUY RARO y sin MODELOS DE PROBABILIDAD. aaaaa. No entiendo nada.
+
+---
+Me he puesto a pensar en lo siguiente: si hubiesemos observado a cada persona de forma simultanea en distintas ocasiones, podriamos estimar el nivel esperado usando dummies para cada tiempo: la idea es que la trayectoria es desconocida y esta seria la especificacion mas flexible.
+
+OK, pero ahora reconozcamos que no tenemos esa regularidad de medidas y que ademas no hay razon para que esas medidas sean totalmente aleatorias. Propongo usar un proceso gaussiano para modelar la influencia del tiempo ie la curva latente.
+
+Lo que estoy pensando es que si incorporo el resto de variables como un modelo aditivo quizas no funcione. Habria que probar una proporcionalidad basal tipo regresion Cox. Pero de evaluemos ambas posibilidades de todas formas.
+
+---
+Pero tambien quiero leer sobre time series en Stat 510 PSU
+
+LESSON 1: Time Series Basics
+
+-univariate time series: secuencia de valores de una variable a traves del tiempo
+
+preguntas que hacer sobre una serie: trend, seasonality, outliers, long-run cycle, variance variation, abrupt changes
+
+-AR(1) model: use previous value to predict current
+> Simplemente crea una columna con los valores laggeados y regresionas sobre eso
+
+Exploratory analysis: plot x_t-1 vs x_t
+
+-Season + trend model: usar la variable tiempo e indicadores de periodos importantes p.ej. trimestres
+
+-Weakly stationary series: autocorrelation is independent of time
+1> mean E(x_t) is constant
+2> variance x_t is constant
+3> correlation/covariance x_t and x_t-h is constant for all t at each given h
+
+-ACF: autocorrelation function, shows correlations btw obs at different lags
+>Cov(x_t, x_t-h)/SD(x_t)SD(x_t-h) = Cov(x_t, x_t-h)/V(x_t) (by property 3)
+
+ACF for AR(1) = w^dt
+
+Detrending: when a trend is apparent, analyzing differences instead can be of interest (this would remove a linear trend)
+
+LESSON 2: MA Models, PACF
+
+- The Moving Average (MA) model incorporates past errors into current measurements:
+> Example of MA(1): x_t = c + e_t + w*e_t-1
+
+ACF for MA(1) = w/(1+w2) at dt = 1, 0 everywhere else
+
+- Partial Autocorrelation Function
+> partial = conditional
+> Given y, x1, x2, x3: PACF of y and x3 -> correlation of residuals of y on x1, x2 and x3 on x1, x2.
+
+Cov(y,x3|x1,x2)/sqrt(Var(y|x1,x2)Var(x3|x1,x2)
+
+PACF is useful because it goes to zero beyond order of AR model (like ACF in MA)
+
+LESSON 3: Identifying and Estimating ARIMA models, Forecasting
+
+ARIMA brings together AR, detrending and MA models. In order to determine the order of each component, exploration should consider data plot, ACF and PACF.
+
+- Data plot: look for trend, seasonality, outliers, varying variance
+- ACF, PACF: look simultaneously; if correlation doesnt fall off consider differencing
+
+[Every ARIMA model can be converted to an infinite order MA – this is useful for some theoretical work, including the determination of standard errors for forecast errors.]
+
+
+<lightbulb moment: debi revisar el libro de Hyndman>
