@@ -3,3 +3,4 @@ input/*
 *.png
 .Rhistory
 .Rproj.user/
+*.html
