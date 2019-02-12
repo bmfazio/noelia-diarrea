@@ -1,23 +1,7 @@
-source("in/load.R")
-library(lubridate)
-row_window <- function(data, var, size){
-  row_match <- which(!is.na(data[,var]))
-  data[unique(as.vector(sapply(row_match, `+`, -size:size))),]
-}
+options(encoding = "utf8")
+source(here::here("code", "setup.R"))
+source(here("code","load.R"))
+source(here("code","analysis.R"))
 
-# Deberíamos poder reproducir los intervalos mostrados en episodes_for_shedding
-
-  # Ver los episodios mas largos:
-nshed %>% arrange(-duration_days)
-  # Examinar PX205
-ndata %>%
-  filter(codigo == "PX205") %>%
-  row_window("genotip", 2)
-  # tomando fecha exacta de muestra no es:
-ymd("2009-05-25") - ymd("2009-06-23")
-  # tomando fechas de medidas anterior y posterior si es:
-ymd("2009-05-18") - ymd("2009-0628")
-# (pero de donde sale el decimal?)
-
-ndata %>%
-  transmute(infec = genotip)
+# evaluar nesteado: genotipo dentro de genogrupo
+# la carga esta en log10, usar una dist normal para predecir seria "absurdo" si intervalos cruzan 1, pero ya we, luego vemos eso
