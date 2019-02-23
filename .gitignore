@@ -4,3 +4,4 @@ input/*
 .Rhistory
 .Rproj.user/
 *.html
+*.RDS
